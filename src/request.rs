@@ -29,6 +29,19 @@ impl FromStr for Method {
         }
     }
 }
+
+impl std::fmt::Display for Method {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Method::GET => write!(f, "GET"),
+            Method::POST => write!(f, "POST"),
+            Method::HEAD => write!(f, "HEAD"),
+            Method::DELETE => write!(f, "DELETE")
+        }
+    }
+}
+
+// ADD ACTUAL EDGE CASE DETECTION LATER (no unwraps)
 pub fn parse(raw: &[u8]) -> Result<HttpRequest, ServerError>{
     let i = match raw.windows((b"\r\n\r\n").len()).position(|window| window == b"\r\n\r\n") {
         Some(ind) => ind,
