@@ -1,7 +1,6 @@
 use crate::response::HttpResponse;
 use crate::error::ServerError;
 use std::path::Path;
-use std::collections::HashMap;
 use std::fs::read;
 
 pub fn serve_file(root: &Path, request_path: &str) -> Result<HttpResponse, ServerError>{
@@ -11,11 +10,10 @@ pub fn serve_file(root: &Path, request_path: &str) -> Result<HttpResponse, Serve
     if request_path.contains('\0'){
         return Err(ServerError::BadRequest(String::from("path contains a null byte")));
     }
-    let full_path = root.join(request_path);
-    let file = read(full_path)?;
-    let ext = root.extension().unwrap();
+    let full_path = root.join(request_path.trim_start_matches("/"));
+    let file = read(&full_path)?;
 
-    let mime_type = match ext.to_str() {
+    let mime_type = match full_path.extension().unwrap().to_str() {
         Some("html") => "text/html",
         Some("css") => "text/css",
         Some("js") => "application/javascript",
