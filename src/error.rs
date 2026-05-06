@@ -11,18 +11,6 @@ pub enum ServerError {
     BadRequest(String),
     Internal(String),
 }
-impl ServerError {
-    pub fn status_code(&self) -> u32{
-        match self{
-            ServerError::Parse(_) => 400,
-            ServerError::Io(_) => 500,
-            ServerError::NotFound => 404,
-            ServerError::MethodNotAllowed => 405,
-            ServerError::BadRequest(_) => 400,
-            ServerError::Internal(_) => 500,
-        }
-    }
-}
 
 // wraps io errors into ServerError
 impl From<io::Error> for ServerError {
