@@ -1,11 +1,12 @@
 use crate::request::Method;
 use std::collections::HashMap;
+use crate::error::ServerError;
 
 pub struct HttpResponse {
-    status: u16,
-    reason: String,
-    headers: HashMap<String, String>,
-    body: Vec<u8>
+    pub status: u16,
+    pub reason: String,
+    pub headers: HashMap<String, String>,
+    pub body: Vec<u8>
 }
 
 impl HttpResponse {
@@ -63,6 +64,29 @@ impl HttpResponse {
             reason: String::from("something went wrong..."),
             headers,
             body: b"<h1>500 Internal Error </h1>".to_vec(),
+        }
+    }
+
+    pub fn to_bytes(&self) -> Vec<u8>{
+        let mut request = format!("HTTP/1.1 {} {}\r\n", self.status, self.reason);
+        for (key, value) in &self.headers {
+            request.push_str(&format!("{}: {}\r\n", key, value));
+        }
+        request.push_str(&format!("Content-Length: {}\r\n", self.body.len()));
+        request.push_str("\r\n");
+        let mut bytes = request.as_bytes().to_vec();
+        bytes.extend_from_slice(&self.body);
+        bytes
+    }
+
+    pub fn from_error(e: &ServerError) -> HttpResponse {
+        match e {
+            ServerError::BadRequest(err) => HttpResponse::bad_request(err),
+            ServerError::Internal(_) => HttpResponse::internal_error(),
+            ServerError::Io(_)  => HttpResponse::internal_error(),
+            ServerError::NotFound => HttpResponse::not_found(),
+            ServerError::Parse(err) => HttpResponse::bad_request(err),
+            ServerError::MethodNotAllowed => HttpResponse::method_not_allowed(&[])
         }
     }
 }
