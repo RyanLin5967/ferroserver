@@ -4,12 +4,12 @@ use std::str::from_utf8;
 use std::str::FromStr;
 
 pub struct HttpRequest {
-    method: Method,
-    version: String,
-    headers: HashMap<String, String>,
-    path: String,
-    query: Option<String>,
-    body: Vec<u8>
+    pub method: Method,
+    pub version: String,
+    pub headers: HashMap<String, String>,
+    pub path: String,
+    pub query: Option<String>,
+    pub body: Vec<u8>
 }
 pub enum Method {
     GET,
