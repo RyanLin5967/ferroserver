@@ -22,7 +22,7 @@ impl Router {
         return Router { routes: Vec::new(), root_path: static_root }
     }
 
-    pub fn dispatch(&self, request: HttpRequest) -> HttpResponse{
+    pub async fn dispatch(&self, request: HttpRequest) -> HttpResponse{
         for route in &self.routes {
             if route.method == request.method && route.pattern == request.path {
                 return match (route.handler)(request) {
@@ -31,7 +31,7 @@ impl Router {
                 }
             }
         }
-        return match serve_file(&self.root_path, &request.path) {
+        return match serve_file(&self.root_path, &request.path).await {
             Ok(res) => res,
             Err(e) => HttpResponse::from_error(&e)
         };
