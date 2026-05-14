@@ -11,12 +11,14 @@ pub struct HttpRequest {
     pub query: Option<String>,
     pub body: Vec<u8>
 }
+#[derive(PartialEq)]
 pub enum Method {
     GET,
     POST,
     HEAD,
     DELETE,
 }
+
 impl FromStr for Method {
     type Err = ServerError;
     fn from_str(s: &str) -> Result<Self, Self::Err>{
