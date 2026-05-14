@@ -5,9 +5,13 @@ use std::path::Path;
 use crate::request;
 use crate::error::ServerError;
 use crate::response::HttpResponse;
+use crate::router::Router;
 use crate::static_files::serve_file;
+use std::sync::Arc;
 
-pub fn run(addr: &str){
+
+// needs to take in router as well
+pub fn run(addr: &str, router: Arc<Router>){
     let listener =  match TcpListener::bind(&addr){
         Ok(listener) => {
             println!("bound to: {}", &addr);
@@ -22,8 +26,9 @@ pub fn run(addr: &str){
         match listener.accept(){
             Ok((stream, address)) => {
                 println!("connected to: {}", address);
+                let clone = Arc::clone(&router);
                 thread::spawn(move || {
-                    handle_connection(stream);
+                    handle_connection(stream, clone);
                 });
             }
             Err(e) => eprintln!("error: {}", e)
@@ -31,7 +36,7 @@ pub fn run(addr: &str){
     }
 }
 
-fn handle_connection(mut stream: TcpStream){
+fn handle_connection(mut stream: TcpStream, router: Arc<Router>){
     let mut buffer = [0; 4096];
     let size = match stream.read(&mut buffer){
         Ok(si) => si,
@@ -47,11 +52,8 @@ fn handle_connection(mut stream: TcpStream){
             return;
         }
     };
-    let response = match serve_file(Path::new("./public"), &request.path) {
-        Ok(res) => res,
-        Err(e) => HttpResponse::from_error(&e)
-    };
-    println!("{} {} {} {} bytes", request.method, request.path, response.status, response.body.len());
+    let response = router.dispatch(request);
+    // println!("{} {} {} {} bytes", request.method, &request.path, response.status, response.body.len());
     let _ = stream.write_all(&response.to_bytes());
     let _ = stream.flush();
 }

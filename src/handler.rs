@@ -8,5 +8,9 @@ pub fn health(request: HttpRequest) -> Result<HttpResponse, ServerError>{
 
 // for testing post
 pub fn echo(request: HttpRequest) -> Result<HttpResponse, ServerError>{
-     return Ok(HttpResponse::ok(request.body, request.headers.get("content-type").unwrap()));
+    let content_type = match request.headers.get("content-type"){
+        Some(ct) => ct,
+        None => "text/plain"
+    };
+    return Ok(HttpResponse::ok(request.body, content_type));
 }
