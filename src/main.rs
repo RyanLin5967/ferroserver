@@ -6,6 +6,7 @@ mod static_files;
 mod router;
 mod handler;
 mod connection;
+mod compression;
 use crate::handler::{echo, health};
 use crate::request::Method;
 use crate::router::Router;
