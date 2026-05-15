@@ -50,8 +50,9 @@ pub async fn handle_connection(mut stream: TcpStream, router: Arc<Router>){
         }else {
             close = false;
         } 
-        let mut response = router.dispatch(request.clone()).await;
-        compress(&request, &mut response);
+        let accepts_gzip = request.headers.get("accept-encoding").map(|v| v.contains("gzip")).unwrap_or(false);
+        let mut response = router.dispatch(request).await;
+        compress(accepts_gzip, &mut response);
         let _ = stream.write_all(&response.to_bytes()).await;
         let _ = stream.flush().await;
 

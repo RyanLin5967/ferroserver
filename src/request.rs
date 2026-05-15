@@ -3,7 +3,6 @@ use crate::error::ServerError;
 use std::str::from_utf8;
 use std::str::FromStr;
 
-#[derive(Clone)]
 pub struct HttpRequest {
     pub method: Method,
     pub version: String,
@@ -13,7 +12,6 @@ pub struct HttpRequest {
     pub body: Vec<u8>
 }
 #[derive(PartialEq)]
-#[derive(Clone)]
 pub enum Method {
     GET,
     POST,
