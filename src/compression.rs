@@ -3,7 +3,8 @@ use flate2::{Compression, write::GzEncoder};
 use std::io::Write;
 
 pub fn compress(request: &HttpRequest, response: &mut HttpResponse){
-    if !is_compressible(response.headers.get("content-type").unwrap()) || !request.headers.get("accept-encoding").map(|v| v.contains("gzip")).unwrap_or(false) || response.body.len() < 150{
+
+    if !is_compressible(response.headers.get("content-type").unwrap_or(&String::from(""))) || !request.headers.get("accept-encoding").map(|v| v.contains("gzip")).unwrap_or(false) || response.body.len() < 150{
         return;
     }
     let mut encoder = GzEncoder::new(Vec::new(), Compression::default());

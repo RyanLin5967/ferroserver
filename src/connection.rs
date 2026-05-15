@@ -1,5 +1,6 @@
 use tokio::net::{TcpStream};
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
+use crate::compression::compress;
 use crate::request;
 use crate::error::ServerError;
 use crate::response::HttpResponse;
@@ -29,7 +30,7 @@ pub async fn handle_connection(mut stream: TcpStream, router: Arc<Router>){
                 },
                 Err(_) => return,
             };
-            
+
             buf.extend_from_slice(&temp[..size]);
         }
         let (request, size) = match request::parse(&buf) {
@@ -40,7 +41,7 @@ pub async fn handle_connection(mut stream: TcpStream, router: Arc<Router>){
             }
         };
         buf.drain(..size);
-        let connection = match request.headers.get("connection") {
+        let connection = match &request.headers.get("connection") {
             Some(con) => con,
             None => "keep-alive"
         };
@@ -49,7 +50,8 @@ pub async fn handle_connection(mut stream: TcpStream, router: Arc<Router>){
         }else {
             close = false;
         } 
-        let response = router.dispatch(request).await;
+        let mut response = router.dispatch(request.clone()).await;
+        compress(&request, &mut response);
         let _ = stream.write_all(&response.to_bytes()).await;
         let _ = stream.flush().await;
 
