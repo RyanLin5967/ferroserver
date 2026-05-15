@@ -44,7 +44,7 @@ impl std::fmt::Display for Method {
 }
 
 // ADD ACTUAL EDGE CASE DETECTION LATER (no unwraps)
-pub fn parse(raw: &[u8]) -> Result<HttpRequest, ServerError>{
+pub fn parse(raw: &[u8]) -> Result<(HttpRequest, usize), ServerError>{
     let i = match raw.windows((b"\r\n\r\n").len()).position(|window| window == b"\r\n\r\n") {
         Some(ind) => ind,
         None => return Err(ServerError::Parse(String::from("didn't find the header cutoff")))
@@ -75,10 +75,14 @@ pub fn parse(raw: &[u8]) -> Result<HttpRequest, ServerError>{
     let body_i = i+4;
     let body = match headers.get("content-length"){
         Some(len) => {
+            if body_i + len.parse::<usize>().unwrap() > raw.len() {
+                return Err(ServerError::Parse(String::from("incomplete body")))
+            }
             raw[body_i..body_i +len.parse::<usize>().unwrap()].to_vec()
         }
         None => Vec::new()
     };
-    return Ok(HttpRequest { method, version, headers, path, query, body })
+    let consumed = body_i + body.len();
+    return Ok((HttpRequest { method, version, headers, path, query, body }, consumed))
 }
     
