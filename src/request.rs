@@ -12,6 +12,7 @@ pub struct HttpRequest {
     pub body: Vec<u8>
 }
 #[derive(PartialEq)]
+#[derive(Debug)]
 pub enum Method {
     GET,
     POST,
