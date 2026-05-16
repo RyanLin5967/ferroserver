@@ -1,16 +1,7 @@
-mod server;
-mod error;
-mod request;
-mod response;
-mod static_files;
-mod router;
-mod handler;
-mod connection;
-mod compression;
-mod proxy;
-use crate::handler::{echo, health};
-use crate::request::Method;
-use crate::router::Router;
+use httpfromscratch::handler::{echo, health};
+use httpfromscratch::request::Method;
+use httpfromscratch::router::Router;
+use httpfromscratch::server;
 use std::path::PathBuf;
 use std::sync::Arc;
 
