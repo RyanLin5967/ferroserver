@@ -68,7 +68,7 @@ pub async fn forward(mut request: HttpRequest, backend: &str) -> Result<HttpResp
     };
 
     let parts: Vec<&str> = first.split(" ").collect();
-    let version = String::from(parts[0]);
+    // let version = String::from(parts[0]);
     let status = parts[1].parse::<u16>().unwrap();
     let reason = String::from(parts[2..].join(" "));
 
