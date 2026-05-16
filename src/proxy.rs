@@ -12,8 +12,8 @@ pub async fn forward(mut request: HttpRequest, backend: &str) -> Result<HttpResp
     };
     request.headers.insert(String::from("host"), backend.to_string());
     let uri = match &request.query {
-        Some(q) => format!("{}?{}", request.path, q),
-        None => request.path.clone()
+        Some(q) => format!("{}?{}", "/", q), //could also just strip the /proxy
+        None => String::from("/")
     };
     let mut res = format!("{} {} HTTP/1.1\r\n", request.method, uri);
     request.headers.remove("content-length");
@@ -38,7 +38,20 @@ pub async fn forward(mut request: HttpRequest, backend: &str) -> Result<HttpResp
         let size = stream.read(&mut temp).await?;
         buf.extend_from_slice(&temp[..size]);
     }
+    let header_end = buf.windows(4).position(|w| w == b"\r\n\r\n").unwrap();
+    let header_str_temp = from_utf8(&buf[..header_end]).unwrap_or("");
+    let content_length: usize = header_str_temp.split("\r\n")
+        .filter_map(|line| line.split_once(": "))
+        .find(|(k, _)| k.to_lowercase() == "content-length")
+        .map(|(_, v)| v.parse().unwrap_or(0))
+        .unwrap_or(0);
 
+    let total_needed = header_end + 4 + content_length;
+    while buf.len() < total_needed {
+        let n = stream.read(&mut temp).await?;
+        if n == 0 { break; }
+        buf.extend_from_slice(&temp[..n]);
+    }
     let i = match buf.windows(4).position(|win| win == b"\r\n\r\n") {
         Some(ind) => ind,
         None => return Err(ServerError::Parse(String::from("no header separater"))),
@@ -57,7 +70,7 @@ pub async fn forward(mut request: HttpRequest, backend: &str) -> Result<HttpResp
     let parts: Vec<&str> = first.split(" ").collect();
     let version = String::from(parts[0]);
     let status = parts[1].parse::<u16>().unwrap();
-    let reason = String::from(parts[2]);
+    let reason = String::from(parts[2..].join(" "));
 
     let mut headers: HashMap<String, String> = HashMap::new();
     
@@ -75,6 +88,7 @@ pub async fn forward(mut request: HttpRequest, backend: &str) -> Result<HttpResp
         }
         None => Vec::new()
     };
+    headers.remove("content-length");
     return Ok(HttpResponse {status, reason, headers, body})
 
 }
