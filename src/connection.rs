@@ -9,8 +9,6 @@ use std::sync::Arc;
 use tokio::time::timeout;
 use std::time::Duration;
 
-// have to check connection header if close or keep alive
-// if close, break, if not, no break
 pub async fn handle_connection(mut stream: TcpStream, router: Arc<Router>){
     let mut close;
     let mut buf: Vec<u8> = Vec::new();
