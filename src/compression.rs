@@ -1,4 +1,4 @@
-use crate::{request::HttpRequest, response::HttpResponse};
+use crate::{response::HttpResponse};
 use flate2::{Compression, write::GzEncoder};
 use std::io::Write;
 
