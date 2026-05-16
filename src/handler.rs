@@ -1,4 +1,4 @@
-use crate::{error::ServerError, request::{HttpRequest, Method}, response::HttpResponse};
+use crate::{error::ServerError, request::{HttpRequest}, response::HttpResponse};
 
 // for testing get
 pub fn health(request: HttpRequest) -> Result<HttpResponse, ServerError>{

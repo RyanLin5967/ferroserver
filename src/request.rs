@@ -44,7 +44,6 @@ impl std::fmt::Display for Method {
     }
 }
 
-// ADD ACTUAL EDGE CASE DETECTION LATER (no unwraps)
 pub fn parse(raw: &[u8]) -> Result<(HttpRequest, usize), ServerError>{
     let i = match raw.windows((b"\r\n\r\n").len()).position(|window| window == b"\r\n\r\n") {
         Some(ind) => ind,

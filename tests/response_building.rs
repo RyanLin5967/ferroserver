@@ -1,6 +1,5 @@
 use httpfromscratch::response::HttpResponse;
 use httpfromscratch::request::Method;
-use httpfromscratch::error::ServerError;
 
 #[test]
 fn ok_to_bytes() {
