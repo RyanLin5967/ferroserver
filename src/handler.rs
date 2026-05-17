@@ -1,7 +1,7 @@
 use crate::{error::ServerError, request::{HttpRequest}, response::HttpResponse};
 
 // for testing get
-pub fn health(request: HttpRequest) -> Result<HttpResponse, ServerError>{
+pub fn health(_request: HttpRequest) -> Result<HttpResponse, ServerError>{
     let body = b"{\"status\": \"ok\"}";
     return Ok(HttpResponse::ok( body.to_vec(), "application/json"));
 }

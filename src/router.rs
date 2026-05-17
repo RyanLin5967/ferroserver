@@ -30,7 +30,7 @@ impl Router {
     pub async fn dispatch(&self, request: HttpRequest) -> HttpResponse{
         for (pattern, backend) in &self.proxy_routes {
             if request.path.starts_with(pattern) {
-                let res = match forward(request, backend).await {
+                let _res = match forward(request, backend).await {
                     Ok(resp) => return resp,
                     Err(e) => return HttpResponse::from_error(&e)
                 };
