@@ -52,7 +52,3 @@ cd httpfromscratch
 cargo run
 ```
 Then go to step 4 above
-
-
-## Ai use
-Used ai for learning rust concepts/syntax, some debugging, and understanding how http servers work. 
