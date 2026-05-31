@@ -1,4 +1,4 @@
-# HTTP Server
+# ferroserver
 An HTTP/1.1 server built from scratch in Rust (no frameworks). I built it to better understand how HTTP requests work and to learn Rust. 
 
 ## Features
